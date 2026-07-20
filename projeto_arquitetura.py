@@ -196,7 +196,9 @@ def listar():
 
 #cria a janela principal
 janela=tk.Tk()
-janela.geometry("500x300")
+x=(janela.winfo_screenwidth()//2)-(800//2)
+y=(janela.winfo_screenheight()//2)-(600//2)
+janela.geometry(f"{800}x{600}+{x}+{y}")
 janela.config(bg="#2e2d2d")
 
 #variáveis usada para armazenar a foto do fundo dos arquivos
@@ -238,9 +240,16 @@ search=None
 cancelar=None
 buscar=None
 
-logs=[""]
+logs=[]
+
+teste=tk.Button(janela, text="teste", command=lambda:(os.rename("eu.py", "pasta/eu.py"), os.rename("teste", "pasta/teste"), limpar_arquivos_da_tela(), listar()))
+teste.pack()
 janela.mainloop()
 os.system("cls")
 print("Registro de Operações:")
-for a in logs:
-    print(a)
+if logs==[]:
+    print("Nenhuma operação realizada")
+else:
+    for a in logs:
+        print(a)
+    
