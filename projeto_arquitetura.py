@@ -1,11 +1,35 @@
 import os
 import tkinter as tk
 import sys
+import shutil
+
+def voltar_pasta():
+    global pasta_atual
+    limpar_arquivos_da_tela()
+    pasta_atual = os.path.dirname(pasta_atual)
+    listar()
+
+def botao_voltar():
+    rf=tk.Button(janela, text="voltar", command=lambda: (voltar_pasta(), rf.destroy()))
+    rf.place(x=10, y=10)
+def mudar_pasta(event, item):
+    global pasta_atual
+    li=0
+    if item.endswith(".py"):
+        li=li
+    else:
+        limpar_arquivos_da_tela()
+        pasta_atual=os.path.join(pasta_atual, item)
+        listar()
+        print(pasta_atual)
+        if pasta_atual!=".":
+            botao_voltar()
 def exibir_arquivos(i):
     limpar_arquivos_da_tela()
     arquivo[i].pack(expand=True)
     
 def encontar_arquivo_busca(nome):
+    limpar_arquivos_da_tela()
     arquivo.append("")
     i = 0
     linha = 0
@@ -45,10 +69,10 @@ def fechar_todas_janelas():
 def renomear_update_arquivo(antigo):
     texto=campo.get()
     if antigo.endswith(".py"):
-        os.rename(antigo, f"{texto}.py")
+        os.rename(os.path.join(pasta_atual, antigo), os.path.join(pasta_atual, f"{texto}.py"))
         logs.append(f"renomeou um arquivo chamado [{antigo}] para [{texto}.py]")
     else:
-        os.rename(antigo, texto)
+        os.rename(os.path.join(pasta_atual, antigo), os.path.join(pasta_atual, texto))
         logs.append(f"renomeou uma pasta chamada [{antigo}] para [{texto}]")
     limpar_arquivos_da_tela()
     listar()
@@ -88,10 +112,10 @@ def criar_campo_digitavel(tipo, funcao, nome):
 def apagar_arquivos(event, texto):
     limpar_arquivos_da_tela()
     if texto.endswith(".py"):
-        os.remove(texto)
+        os.remove(os.path.join(pasta_atual, texto))
         logs.append(f"apagou um arquivo chamado: {texto}")
     else:
-        os.rmdir(texto)
+        shutil.rmtree(os.path.join(pasta_atual, texto))
         logs.append(f"apagou uma pasta chamada: {texto}")
     listar()
     edit.destroy()
@@ -102,16 +126,16 @@ def apagar_arquivos(event, texto):
 
 def verificar_o_arquivo_selecionado(texto):
     if pasta==1:
-        os.mkdir(texto)
+        os.mkdir(os.path.join(pasta_atual, texto))
         logs.append(f"criou uma pasta chamada {texto}")
     else:
-        with open(f"{texto}.py", "w"):
+        with open(os.path.join(pasta_atual, f"{texto}.py"), "w"):
             pass
         logs.append(f"criou um arquivo chamado {texto}.py")
         print(f"criou {texto}.py")
     listar()
 def limpar_arquivos_da_tela():
-    for i in range(len(os.listdir())):
+    for i in range(len(os.listdir(pasta_atual))):
             if arquivo[i]!="":
                 arquivo[i].pack_forget()
     
@@ -126,7 +150,7 @@ def criar_arquivos_e_adicionar_ao_vetor(linha, coluna, i, item):
     caixa.grid(row=linha, column=coluna, padx=10, pady=10)
     caixa.grid_propagate(False)
     arquivo[i] = tk.Button(caixa, text=item, compound="top", wraplength=100, bg="#2e2d2d", fg="white", font=("Segoe UI Variable Small Semibol", 10), bd=0)
-    arquivo[i].bind("<Double-Button-1>", lambda event: apagar_arquivos(event, item))
+    arquivo[i].bind("<Double-Button-1>", lambda event: mudar_pasta(event, item))
     arquivo[i].bind("<Button-3>", lambda event: janela_edicao(event, item))
 
 
@@ -186,7 +210,7 @@ def listar():
             verificar_arquivo_e_adiciona_imagem(item, i)
             arquivo[i].pack(expand=True)
             coluna += 1
-            if coluna == 6:
+            if coluna == 11:
                 coluna = 0
                 linha += 1
             i += 1
@@ -205,9 +229,9 @@ janela.config(bg="#2e2d2d")
 imagem = tk.PhotoImage(file=caminho("arquivos_do_sistema/teste.png"))
 mais = tk.PhotoImage(file=caminho("arquivos_do_sistema/mais.png"))
 diretorio = tk.PhotoImage(file=caminho("arquivos_do_sistema/pasta.png"))
-
+pasta_atual="."
 #vetor que armazena o nome de todos os arquivos da pasta
-arquivo=[""]*len(os.listdir())
+arquivo=[""]*len(os.listdir(pasta_atual))
 pesquisa=tk.Button(janela, text="pesquisa", command=campo_pesquisa)
 pesquisa.pack(pady=1)
 #método usado para organizar os arquivos em linhas 
@@ -216,7 +240,6 @@ frame_arquivos.pack(fill="both", expand=True)
 #botão que abre a criação de um novo arquivo
 botao_criacao=tk.Button(janela, command=abrir_janela_ciação_arquivo, image=mais, bg="#2e2d2d", bd=0)
 botao_criacao.place(relx=1.0, rely=1.0, anchor="se", x=-10, y=-10)
-pasta_atual="."
 #chama a função que lista todos os arquivos presentes na pasta
 listar()
 
@@ -235,15 +258,11 @@ criar_pasta=None
 pasta=0
 arquivo_py=0
 janela.protocol("WM_DELETE_WINDOW", fechar_todas_janelas)
-
 search=None
 cancelar=None
 buscar=None
 
 logs=[]
-
-teste=tk.Button(janela, text="teste", command=lambda:(os.rename("eu.py", "pasta/eu.py"), os.rename("teste", "pasta/teste"), limpar_arquivos_da_tela(), listar()))
-teste.pack()
 janela.mainloop()
 os.system("cls")
 print("Registro de Operações:")
@@ -252,4 +271,3 @@ if logs==[]:
 else:
     for a in logs:
         print(a)
-    
