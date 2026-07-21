@@ -3,14 +3,18 @@ import tkinter as tk
 import sys
 import shutil
 
+def excluir_registros():
+    global registro
+    with open("Registros.txt", "w"):
+        pass
 def voltar_pasta():
     global pasta_atual
     limpar_arquivos_da_tela()
     pasta_atual = os.path.dirname(pasta_atual)
     listar()
 
-def botao_voltar():
-    rf=tk.Button(janela, text="voltar", command=lambda: (voltar_pasta(), rf.destroy()))
+def botao_de_voltar():
+    rf=tk.Button(janela, text="voltar", image=botao_voltar, bd=0, bg="#2e2d2d", command=lambda: (voltar_pasta(), rf.destroy()))
     rf.place(x=10, y=10)
 def mudar_pasta(event, item):
     global pasta_atual
@@ -23,7 +27,7 @@ def mudar_pasta(event, item):
         listar()
         print(pasta_atual)
         if pasta_atual!=".":
-            botao_voltar()
+            botao_de_voltar()
 def exibir_arquivos(i):
     limpar_arquivos_da_tela()
     arquivo[i].pack(expand=True)
@@ -35,7 +39,7 @@ def encontar_arquivo_busca(nome):
     linha = 0
     coluna = 0
     for item in os.listdir(pasta_atual):
-        if item!="projeto_arquitetura.py" and item!="arquivos_do_sistema":
+        if item!="projeto_arquitetura.py" and item!="arquivos_do_sistema" and item!="Registros.txt":
             criar_arquivos_e_adicionar_ao_vetor(linha, coluna, i, item)
             verificar_arquivo_e_adiciona_imagem(item, i)
             if arquivo[i]["text"]==f"{nome}.py":
@@ -56,9 +60,9 @@ def campo_pesquisa():
     search=tk.Entry(janela)
     pesquisa.pack_forget()
     search.pack(before=frame_arquivos)
-    cancelar=tk.Button(janela, text="cancelar", command=lambda:(search.pack_forget(), cancelar.pack_forget(), pesquisa.pack(before=frame_arquivos), buscar.pack_forget(), limpar_arquivos_da_tela(), listar()))
+    cancelar=tk.Button(janela, text="cancelar", image=botao_cancelar, bd=0, bg="#2e2d2d", command=lambda:(search.pack_forget(), cancelar.pack_forget(), pesquisa.pack(before=frame_arquivos), buscar.pack_forget(), limpar_arquivos_da_tela(), listar()))
     cancelar.pack(before=frame_arquivos)
-    buscar=tk.Button(janela, text="Ok", command=lambda:encontar_arquivo_busca(search.get()))
+    buscar=tk.Button(janela, text="Ok", bg="#2e2d2d", image=botao_ok, bd=0, command=lambda:encontar_arquivo_busca(search.get()))
     buscar.pack(before=frame_arquivos)
 
 def fechar_todas_janelas():
@@ -89,13 +93,13 @@ def valor_pasta_0():
     nova_janela.destroy()
 def janela_edicao(evento, nome):
     global edit
-    edit=tk.Tk()
+    edit=tk.Toplevel()
     x=(edit.winfo_screenwidth()//2)-(200//2)
     y=(edit.winfo_screenheight()//2)-(100//2)
     edit.geometry(f"{200}x{100}+{x}+{y}")
-    apagar=tk.Button(edit, text="apagar", command=lambda:apagar_arquivos(1, nome))
+    apagar=tk.Button(edit, image=botao_excluir, bd=0, command=lambda:apagar_arquivos(1, nome))
     apagar.pack()
-    renomear=tk.Button(edit, text="renomear", command=lambda:(criar_campo_digitavel(edit, renomear_update_arquivo, nome), renomear.pack_forget(), apagar.pack_forget()))
+    renomear=tk.Button(edit, text="renomear", bd=0, image=botao_renomear, command=lambda:(criar_campo_digitavel(edit, renomear_update_arquivo, nome), renomear.pack_forget(), apagar.pack_forget()))
     renomear.pack()
     edit.mainloop()
 
@@ -105,7 +109,7 @@ def criar_campo_digitavel(tipo, funcao, nome):
     
     campo=tk.Entry(tipo)
     campo.pack(pady=10)
-    confirmar=tk.Button(tipo, text="OK", command=lambda:funcao(nome), bg="blue", fg="white")
+    confirmar=tk.Button(tipo, text="OK", image=botao_ok, bd=0, command=lambda:funcao(nome), fg="white")
     confirmar.pack()
     campo.delete(0, tk.END)
 
@@ -127,11 +131,11 @@ def apagar_arquivos(event, texto):
 def verificar_o_arquivo_selecionado(texto):
     if pasta==1:
         os.mkdir(os.path.join(pasta_atual, texto))
-        logs.append(f"criou uma pasta chamada {texto}")
+        logs.append(f"criou uma pasta chamada: {texto}")
     else:
         with open(os.path.join(pasta_atual, f"{texto}.py"), "w"):
             pass
-        logs.append(f"criou um arquivo chamado {texto}.py")
+        logs.append(f"criou um arquivo chamado: {texto}.py")
         print(f"criou {texto}.py")
     listar()
 def limpar_arquivos_da_tela():
@@ -170,7 +174,7 @@ def selecao_de_arquivo(identificador):
         pasta=1
     criar_campo_digitavel(nova_janela, criar_um_novo_arquivo, 1)    
 #função que escolhe o tipo de arquivo
-def abrir_janela_ciação_arquivo():
+def abrir_janela_criação_arquivo():
     global criar_pasta
     global criar_arquivo
     global nova_janela
@@ -179,10 +183,10 @@ def abrir_janela_ciação_arquivo():
     x=(nova_janela.winfo_screenwidth()//2)-(200//2)
     y=(nova_janela.winfo_screenheight()//2)-(100//2)
     nova_janela.geometry(f"{200}x{100}+{x}+{y}")
-    criar_pasta = tk.Button(nova_janela, text="Pasta", command=lambda: (selecao_de_arquivo(1), criar_arquivo.pack_forget(), criar_pasta.pack_forget()))
+    criar_pasta = tk.Button(nova_janela, text="Pasta", image=botao_pasta, bg="gray", bd=0, command=lambda: (selecao_de_arquivo(1), criar_arquivo.pack_forget(), criar_pasta.pack_forget()))
     criar_pasta=criar_pasta
     criar_pasta.pack(pady=10)
-    criar_arquivo = tk.Button(nova_janela, text="Arquivo", command=lambda: (selecao_de_arquivo(2), criar_arquivo.pack_forget(), criar_pasta.pack_forget()))
+    criar_arquivo = tk.Button(nova_janela, text="Arquivo", image=botao_arquivo, bg="gray", bd=0,  command=lambda: (selecao_de_arquivo(2), criar_arquivo.pack_forget(), criar_pasta.pack_forget()))
     criar_arquivo.pack()
     nova_janela.protocol("WM_DELETE_WINDOW", valor_pasta_0)
     nova_janela.mainloop()
@@ -205,7 +209,7 @@ def listar():
     linha = 0
     coluna = 0
     for item in os.listdir(pasta_atual):
-        if item!="projeto_arquitetura.py" and item!="arquivos_do_sistema":
+        if item!="projeto_arquitetura.py" and item!="arquivos_do_sistema" and item!="Registros.txt":
             criar_arquivos_e_adicionar_ao_vetor(linha, coluna, i, item)
             verificar_arquivo_e_adiciona_imagem(item, i)
             arquivo[i].pack(expand=True)
@@ -229,16 +233,24 @@ janela.config(bg="#2e2d2d")
 imagem = tk.PhotoImage(file=caminho("arquivos_do_sistema/teste.png"))
 mais = tk.PhotoImage(file=caminho("arquivos_do_sistema/mais.png"))
 diretorio = tk.PhotoImage(file=caminho("arquivos_do_sistema/pasta.png"))
+botao_pasta=tk.PhotoImage(file=caminho("arquivos_do_sistema/nome_pasta.png"))
+botao_arquivo=tk.PhotoImage(file=caminho("arquivos_do_sistema/nome_arquivo.png"))
+botao_excluir=tk.PhotoImage(file=caminho("arquivos_do_sistema/nome_excluir.png"))
+botao_renomear=tk.PhotoImage(file=caminho("arquivos_do_sistema/nome_renomear.png"))
+botao_pesquisa=tk.PhotoImage(file=caminho("arquivos_do_sistema/nome_pesquisa.png"))
+botao_cancelar=tk.PhotoImage(file=caminho("arquivos_do_sistema/nome_cancelar.png"))
+botao_voltar=tk.PhotoImage(file=caminho("arquivos_do_sistema/nome_voltar.png"))
+botao_ok=tk.PhotoImage(file=caminho("arquivos_do_sistema/nome_ok.png"))
 pasta_atual="."
 #vetor que armazena o nome de todos os arquivos da pasta
 arquivo=[""]*len(os.listdir(pasta_atual))
-pesquisa=tk.Button(janela, text="pesquisa", command=campo_pesquisa)
+pesquisa=tk.Button(janela, text="pesquisa", image=botao_pesquisa, bg="#2e2d2d", bd=0, command=campo_pesquisa)
 pesquisa.pack(pady=1)
 #método usado para organizar os arquivos em linhas 
 frame_arquivos = tk.Frame(janela, bg="#2e2d2d")
 frame_arquivos.pack(fill="both", expand=True)
 #botão que abre a criação de um novo arquivo
-botao_criacao=tk.Button(janela, command=abrir_janela_ciação_arquivo, image=mais, bg="#2e2d2d", bd=0)
+botao_criacao=tk.Button(janela, command=abrir_janela_criação_arquivo, image=mais, bg="#2e2d2d", bd=0)
 botao_criacao.place(relx=1.0, rely=1.0, anchor="se", x=-10, y=-10)
 #chama a função que lista todos os arquivos presentes na pasta
 listar()
@@ -263,11 +275,24 @@ cancelar=None
 buscar=None
 
 logs=[]
+apagar_registros = tk.Button(janela, text="Apagar registros", command=excluir_registros)
+apagar_registros.place(relx=1.0, rely=0.0, anchor="ne", x=-10, y=10)
 janela.mainloop()
 os.system("cls")
-print("Registro de Operações:")
+print("Registro de Operações:\n")
 if logs==[]:
     print("Nenhuma operação realizada")
 else:
     for a in logs:
         print(a)
+
+if logs:
+    with open("Registros.txt", "r") as arquivo:
+        conteudo = arquivo.read()
+
+    with open("Registros.txt", "w") as arquivo:
+        arquivo.write("________________________\n")
+        for item in logs:
+            arquivo.write(item + "\n")
+        arquivo.write("\n")
+        arquivo.write(conteudo)
